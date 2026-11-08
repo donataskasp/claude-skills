@@ -39,7 +39,7 @@ Ask Claude something like "which Duplo sets are in these photos?" and point it a
 ### Taking the photos
 
 - Pull out only the distinctive pieces: figures, animals, printed bricks, vehicles, odd shapes. Plain bricks and plates are useless for telling sets apart.
-- Lay 20 to 30 per photo on a plain white sheet, about 2 cm apart, printed side up. White, grey and clear pieces stand out better on a dark sheet.
+- Spread as many as fit on a large plain white sheet with about 2 cm of space around each piece, printed side up. The gap matters more than the count: pieces that touch get cut out as one. Take as many photos as the pile needs; the skill asks before it goes past about 300 pieces in one run. White, grey and clear pieces stand out better on a dark sheet.
 - Shoot from straight above in good light, with the whole sheet in the frame.
 - For regular LEGO (smaller pieces), put fewer in each photo and shoot closer.
 - Minifigures and printed parts carry most of the evidence.
