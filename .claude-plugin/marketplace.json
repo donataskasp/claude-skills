@@ -1,0 +1,16 @@
+{
+  "name": "donataskasp-skills",
+  "description": "Claude Code skills I use and share",
+  "owner": {
+    "name": "Donatas Kasparavicius",
+    "url": "https://github.com/donataskasp"
+  },
+  "plugins": [
+    {
+      "name": "lego-set-finder",
+      "source": "./lego-set-finder",
+      "description": "Find which LEGO or Duplo sets a mixed pile of pieces came from, from photos, and build a checklist page to sort them.",
+      "category": "hobby"
+    }
+  ]
+}

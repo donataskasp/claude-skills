@@ -1,0 +1,13 @@
+# Local working files: test photos, old session scripts, downloads. Never published.
+local/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Skill run output and caches
+data/
+output/
+.DS_Store

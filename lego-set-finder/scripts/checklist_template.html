@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<style>
+:root {
+  --bg: #f3f4f6; --surface: #ffffff; --ink: #1b2230; --muted: #5b6574; --line: #d8dde5;
+  --accent: #c8281c; --accent-ink: #ffffff; --accent-soft: #fbe5e2;
+  --done: #1d7743; --done-bg: #e2f3e8; --partial: #a86f00; --tile: #ffffff;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151c; --surface: #19202a; --ink: #e7ecf2; --muted: #9ba6b4; --line: #2c3644;
+    --accent: #ff6152; --accent-ink: #1a0d0b; --accent-soft: #3b1e1b;
+    --done: #56c585; --done-bg: #15301f; --partial: #f0b43c; --tile: #e9edf2;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10151c; --surface: #19202a; --ink: #e7ecf2; --muted: #9ba6b4; --line: #2c3644;
+  --accent: #ff6152; --accent-ink: #1a0d0b; --accent-soft: #3b1e1b;
+  --done: #56c585; --done-bg: #15301f; --partial: #f0b43c; --tile: #e9edf2;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--font); padding: 14px 16px 48px; }
+.wrap { max-width: 1400px; margin: 0 auto; display: grid; gap: 14px; }
+h1, h2, h3 { margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(22px, 4vw, 30px); }
+h2 { font-size: 18px; }
+h3 { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+p { margin: 0; }
+a { color: var(--accent); }
+code { font-family: var(--mono); font-size: 11px; }
+.intro { display: grid; gap: 6px; max-width: 80ch; }
+.intro p, .why { color: var(--muted); }
+.brick { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 58px; height: 26px;
+  padding: 0 9px; margin-top: 7px; background: var(--accent); color: var(--accent-ink); border-radius: 5px;
+  font: 500 12.5px var(--mono); font-variant-numeric: tabular-nums; }
+.brick::before, .brick::after { content: ""; position: absolute; top: -6px; width: 14px; height: 7px; background: var(--accent); border-radius: 4px 4px 0 0; }
+.brick::before { left: 12%; } .brick::after { right: 12%; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 8px; }
+.tile { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: start; text-align: left; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
+.tile:hover { border-color: var(--accent); }
+.tile .tname { font-weight: 700; line-height: 1.2; min-width: 0; overflow-wrap: break-word; hyphens: auto; }
+.tile .tmeta { grid-column: 1 / -1; display: grid; gap: 4px; }
+.row { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); }
+.chip { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 1px 7px;
+  border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.chip.likely, .chip.confirmed { color: var(--done); border-color: var(--done); }
+.chip.possible { color: var(--partial); border-color: var(--partial); }
+.bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--done); border-radius: inherit; transition: width .25s ease; }
+.toolbar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; justify-content: space-between;
+  background: var(--bg); padding: 10px 0; border-bottom: 1px solid var(--line); }
+.tools { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
+.seg label { position: relative; padding: 6px 13px; cursor: pointer; font-weight: 600; font-size: 14px; }
+.seg input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.seg label:has(input:checked) { background: var(--ink); color: var(--bg); }
+.toggle { display: inline-flex; align-items: center; gap: 7px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--accent); }
+.btn { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 11px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.status { font-size: 13px; color: var(--muted); }
+.list { display: grid; gap: 22px; }
+.block { display: grid; gap: 8px; scroll-margin-top: 64px; }
+.head { display: grid; gap: 4px; }
+.titleline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.links { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; }
+.prog { display: grid; grid-template-columns: minmax(80px, 260px) auto; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); justify-content: start; }
+.sub { display: grid; gap: 4px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+.card { display: grid; grid-template-rows: auto auto auto 1fr auto; gap: 3px; min-width: 0; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 8px; padding: 5px; }
+.thumb { height: 66px; border-radius: 6px; background: var(--tile); display: grid; place-items: center; overflow: hidden; position: relative; }
+.thumb img { max-width: 92%; max-height: 60px; object-fit: contain; }
+.thumb .seen { position: absolute; left: 3px; top: 3px; font-size: 10px; font-weight: 700; padding: 0 5px; border-radius: 4px;
+  background: var(--ink); color: var(--bg); }
+.pname { font-weight: 600; font-size: 11.5px; line-height: 1.2; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden; }
+.pinfo { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); min-width: 0; }
+.pinfo span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.pfoot { display: flex; flex-wrap: wrap; gap: 2px 6px; align-items: baseline; font-size: 11px; color: var(--muted); align-self: end; }
+.pfoot b { font: 500 10.5px var(--mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+.sw { width: 10px; height: 10px; border-radius: 3px; background: var(--sw, transparent); border: 1px solid var(--line); flex: none; }
+.count { display: grid; grid-template-columns: 30px 1fr; gap: 4px; }
+.count button { font: inherit; cursor: pointer; border-radius: 7px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); height: 36px; }
+.count .minus { font-size: 16px; color: var(--muted); padding: 0; }
+.count .plus { padding: 0 4px; font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums; background: var(--accent-soft); border-color: var(--accent); }
+.count .plus .of { color: var(--muted); font-weight: 600; }
+.card.part .plus { border-color: var(--partial); }
+.card.done { background: var(--done-bg); border-color: var(--done); }
+.card.done .thumb { opacity: .7; }
+.card.done .plus { background: var(--done); border-color: var(--done); color: var(--surface); }
+.card.done .plus .of { color: inherit; }
+button:disabled { opacity: .45; cursor: default; }
+button:focus-visible, .tile:focus-visible, .seg label:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.empty { color: var(--muted); font-style: italic; }
+dialog { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); width: min(680px, calc(100vw - 32px)); padding: 16px; }
+dialog::backdrop { background: rgba(0,0,0,.35); }
+dialog textarea { width: 100%; min-height: 300px; font: 12.5px/1.45 var(--mono); background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+dialog .acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+.foot { color: var(--muted); font-size: 13px; display: grid; gap: 6px; max-width: 80ch; border-top: 1px solid var(--line); padding-top: 14px; }
+@media (max-width: 520px) {
+  .cards { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 5px; }
+  .tiles { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .tile { grid-template-columns: 1fr; }
+  .tile .brick { justify-self: start; }
+}
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="intro">
+    <h1 id="title"></h1>
+    <p id="intro"></p>
+  </header>
+  <section class="tiles" id="tiles" aria-label="Sets"></section>
+  <div class="toolbar" role="toolbar" aria-label="View options">
+    <div class="tools">
+      <div class="seg" role="radiogroup" aria-label="Show parts">
+        <label><input type="radio" name="view" value="set" checked>By set</label>
+        <label><input type="radio" name="view" value="colour">By colour pile</label>
+      </div>
+      <label class="toggle"><input type="checkbox" id="group">Group by colour</label>
+      <label class="toggle"><input type="checkbox" id="hide">Hide found</label>
+    </div>
+    <div class="tools">
+      <button class="btn" type="button" id="missing-btn">Missing parts list</button>
+      <button class="btn" type="button" id="more-btn" aria-haspopup="dialog">Save or reset ticks</button>
+      <span class="status" id="status" aria-live="polite"></span>
+    </div>
+  </div>
+  <main class="list" id="list"></main>
+  <footer class="foot" id="foot"></footer>
+</div>
+
+<dialog id="missing-dlg" aria-labelledby="missing-h">
+  <h2 id="missing-h">Missing parts</h2>
+  <p class="why">Everything not ticked yet, per set. Copy it into a message or a shopping list.</p>
+  <textarea id="missing-text" readonly></textarea>
+  <div class="acts"><button class="btn" type="button" id="copy-btn">Copy</button><button class="btn" type="button" data-close>Close</button></div>
+</dialog>
+
+<dialog id="more-dlg" aria-labelledby="more-h">
+  <h2 id="more-h">Your ticks</h2>
+  <p class="why">Ticks are saved in this browser only. Save them to a file to keep them or move them to another device, and load that file here later.</p>
+  <div class="acts">
+    <button class="btn" type="button" id="export-btn">Save ticks to a file</button>
+    <label class="btn" for="import-file">Load ticks from a file</label>
+    <input type="file" id="import-file" accept="application/json,.json" hidden>
+    <button class="btn" type="button" id="reset-btn">Clear all ticks</button>
+    <button class="btn" type="button" data-close>Close</button>
+  </div>
+</dialog>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+"use strict";
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const SETS = DATA.sets;
+const BY_NO = Object.fromEntries(SETS.map(s => [s.no, s]));
+const KEY = "lego-set-finder:" + DATA.id;
+const PREFS = "lego-set-finder:prefs";
+let state = Object.fromEntries(SETS.map(s => [s.no, {}]));
+let view = "set", hideFound = false, groupColour = true;
+let canSave = true;
+
+const $ = s => document.querySelector(s);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const found = (no, k) => state[no][k] || 0;
+function totals(s) { let need = 0, got = 0; for (const it of s.items) { need += it.qty; got += Math.min(found(s.no, it.k), it.qty); } return { need, got }; }
+function status(t) { $("#status").textContent = t; }
+
+function load() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PREFS) || "{}");
+    if (p.view === "set" || p.view === "colour") view = p.view;
+    if (typeof p.hideFound === "boolean") hideFound = p.hideFound;
+    if (typeof p.groupColour === "boolean") groupColour = p.groupColour;
+  } catch (e) { /* defaults */ }
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) || "{}");
+    for (const no of Object.keys(state)) if (saved[no] && typeof saved[no] === "object") state[no] = saved[no];
+    status("Ticks are saved in this browser");
+  } catch (e) { canSave = false; status("This browser blocks saving, ticks last until you close the page"); }
+}
+function save() {
+  if (!canSave) return;
+  try { localStorage.setItem(KEY, JSON.stringify(state)); status("Saved in this browser"); }
+  catch (e) { canSave = false; status("Could not save in this browser"); }
+}
+function savePrefs() { try { localStorage.setItem(PREFS, JSON.stringify({ view, hideFound, groupColour })); } catch (e) { /* ignore */ } }
+
+function prog(no) {
+  const { need, got } = totals(BY_NO[no]);
+  document.querySelectorAll(`[data-prog="${no}"]`).forEach(p => { p.querySelector("i").style.width = (need ? got / need * 100 : 0) + "%"; });
+  document.querySelectorAll(`[data-progtext="${no}"]`).forEach(t => { t.textContent = `${got} / ${need} pieces`; });
+}
+const tierText = t => ({ likely: "Likely", possible: "Possible", weak: "Weak lead", confirmed: "Confirmed" }[t] || t);
+
+function renderTiles() {
+  const box = $("#tiles"); box.replaceChildren();
+  for (const s of SETS) {
+    const b = el("button", "tile"); b.type = "button";
+    b.addEventListener("click", () => { if (view !== "set") { view = "set"; document.querySelector('input[name="view"][value="set"]').checked = true; renderList(); } document.getElementById("set-" + s.no).scrollIntoView({ behavior: "smooth", block: "start" }); });
+    b.append(el("span", "brick", s.no), el("span", "tname", s.name));
+    const meta = el("span", "tmeta"); const row = el("span", "row");
+    row.append(el("span", "", s.year ? String(s.year) : ""), el("span", "chip " + s.tier, tierText(s.tier)));
+    const bar = el("span", "bar"); bar.dataset.prog = s.no; bar.append(el("i"));
+    const pt = el("span", "row"); pt.dataset.progtext = s.no;
+    meta.append(row, bar, pt); b.append(meta); box.append(b);
+  }
+  SETS.forEach(s => prog(s.no));
+}
+
+function card(s, it, showSet) {
+  const c = el("article", "card"); c.dataset.key = s.no + "|" + it.k;
+  const th = el("div", "thumb");
+  if (it.img) { const im = new Image(); im.src = it.img; im.alt = ""; im.loading = "lazy"; im.addEventListener("error", () => im.remove()); th.append(im); }
+  if (it.seen) { const b = el("span", "seen", "in photos"); b.title = "One of your photographed pieces matches this part"; th.append(b); }
+  const info = el("div", "pinfo");
+  if (it.colour) { const sw = el("span", "sw"); if (it.rgb) sw.style.setProperty("--sw", "#" + it.rgb); info.append(sw, el("span", "", it.colour)); }
+  else info.append(el("span", "", it.group));
+  const foot = el("div", "pfoot"); foot.append(el("code", "", it.num));
+  if (showSet) { const b = el("b", "", s.no); b.title = s.name; foot.append(b); }
+  c.title = it.name + (showSet ? ` (${s.no} ${s.name})` : "");
+  const cnt = el("div", "count");
+  const minus = el("button", "minus", "−"); minus.type = "button"; minus.setAttribute("aria-label", "One fewer " + it.name);
+  const plus = el("button", "plus"); plus.type = "button";
+  minus.addEventListener("click", () => change(s.no, it.k, -1));
+  plus.addEventListener("click", () => change(s.no, it.k, 1));
+  cnt.append(minus, plus);
+  c.append(th, el("div", "pname", it.name), info, foot, cnt);
+  patch(c, s.no, it);
+  return c;
+}
+function patch(c, no, it) {
+  const n = found(no, it.k); const plus = c.querySelector(".plus");
+  plus.replaceChildren(document.createTextNode(n >= it.qty ? "✓ " + n : String(n)), el("span", "of", " / " + it.qty));
+  plus.setAttribute("aria-label", `${it.name}: ${n} of ${it.qty} found. Tap to add one.`);
+  c.classList.toggle("done", n >= it.qty); c.classList.toggle("part", n > 0 && n < it.qty);
+  c.querySelector(".minus").disabled = n === 0;
+}
+function change(no, k, d) {
+  const it = BY_NO[no].items.find(x => x.k === k); if (!it) return;
+  const n = Math.max(0, Math.min(it.qty, found(no, k) + d)); if (n === found(no, k)) return;
+  if (n === 0) delete state[no][k]; else state[no][k] = n;
+  document.querySelectorAll(`[data-key="${CSS.escape(no + "|" + k)}"]`).forEach(c => patch(c, no, it));
+  prog(no); save();
+  if (hideFound && n >= it.qty) setTimeout(renderList, 350);
+}
+const visible = (no, it) => !(hideFound && found(no, it.k) >= it.qty);
+const groupRank = g => (g === "Figures" ? 0 : 1);
+
+function setHead(s) {
+  const head = el("div", "head"); const tl = el("div", "titleline");
+  tl.append(el("span", "brick", s.no), el("h2", "", s.name), el("span", "chip " + s.tier, tierText(s.tier)));
+  head.append(tl);
+  if (s.why) head.append(el("p", "why", s.why));
+  const links = el("div", "links");
+  for (const [text, href] of s.links) { const a = el("a", "", text); a.href = href; a.target = "_blank"; a.rel = "noopener"; links.append(a); }
+  head.append(links);
+  const p = el("div", "prog"); const bar = el("span", "bar"); bar.dataset.prog = s.no; bar.append(el("i"));
+  const t = el("span", ""); t.dataset.progtext = s.no; p.append(bar, t); head.append(p);
+  return head;
+}
+function groupItems(rows) {
+  const g = new Map();
+  for (const r of rows) { const k = r[1].group || "Other"; if (!g.has(k)) g.set(k, []); g.get(k).push(r); }
+  return [...g.entries()].sort((a, b) => groupRank(a[0]) - groupRank(b[0]) || b[1].length - a[1].length || a[0].localeCompare(b[0]));
+}
+function renderList() {
+  const list = $("#list"); list.replaceChildren();
+  if (view === "set") {
+    for (const s of SETS) {
+      const blk = el("section", "block"); blk.id = "set-" + s.no; blk.append(setHead(s));
+      const rows = s.items.filter(it => visible(s.no, it)).map(it => [s, it]);
+      if (!rows.length) blk.append(el("p", "empty", "Every part of this set is found."));
+      else if (!groupColour) { const cards = el("div", "cards"); rows.forEach(([x, it]) => cards.append(card(x, it, false))); blk.append(cards); }
+      else for (const [g, rs] of groupItems(rows)) { const sub = el("div", "sub"); sub.append(el("h3", "", g)); const cards = el("div", "cards"); rs.forEach(([x, it]) => cards.append(card(x, it, false))); sub.append(cards); blk.append(sub); }
+      list.append(blk);
+    }
+  } else {
+    const all = []; for (const s of SETS) for (const it of s.items) all.push([s, it]);
+    const groups = groupColour ? groupItems(all) : [["All parts", all]];
+    for (const [g, rs] of groups) {
+      const blk = el("section", "block"); const head = el("div", "head"); const tl = el("div", "titleline");
+      const first = rs.find(r => r[1].rgb);
+      if (groupColour && g !== "Figures" && first) { const sw = el("span", "sw"); sw.style.width = "18px"; sw.style.height = "18px"; sw.style.setProperty("--sw", "#" + first[1].rgb); tl.append(sw); }
+      tl.append(el("h2", "", g), el("span", "status", rs.reduce((n, r) => n + r[1].qty, 0) + " pieces across the sets"));
+      head.append(tl); blk.append(head);
+      const vis = rs.filter(([s, it]) => visible(s.no, it)).sort((a, b) => a[1].name.localeCompare(b[1].name) || a[0].no.localeCompare(b[0].no));
+      if (!vis.length) blk.append(el("p", "empty", "Everything in this pile is found."));
+      else { const cards = el("div", "cards"); vis.forEach(([s, it]) => cards.append(card(s, it, true))); blk.append(cards); }
+      list.append(blk);
+    }
+  }
+  SETS.forEach(s => prog(s.no));
+}
+
+function missingText() {
+  const out = [];
+  for (const s of SETS) {
+    const miss = s.items.filter(it => found(s.no, it.k) < it.qty);
+    const n = miss.reduce((a, it) => a + it.qty - found(s.no, it.k), 0);
+    const { need } = totals(s);
+    out.push(`${s.no} ${s.name}: ${n ? n + " of " + need + " pieces missing" : "complete"}`);
+    for (const it of miss) out.push(`  ${it.qty - found(s.no, it.k)} x ${it.name}${it.colour ? " (" + it.colour + ")" : ""} [${it.num}]`);
+    out.push("");
+  }
+  return out.join("\n").trim() + "\n";
+}
+
+function init() {
+  $("#title").textContent = DATA.title;
+  document.title = DATA.title;
+  $("#intro").textContent = DATA.intro;
+  const foot = $("#foot");
+  for (const t of DATA.foot) foot.append(el("p", "", t));
+  load();
+  document.querySelector(`input[name="view"][value="${view}"]`).checked = true;
+  $("#group").checked = groupColour; $("#hide").checked = hideFound;
+  document.querySelectorAll('input[name="view"]').forEach(r => r.addEventListener("change", e => { view = e.target.value; savePrefs(); renderList(); }));
+  $("#group").addEventListener("change", e => { groupColour = e.target.checked; savePrefs(); renderList(); });
+  $("#hide").addEventListener("change", e => { hideFound = e.target.checked; savePrefs(); renderList(); });
+  $("#missing-btn").addEventListener("click", () => { $("#missing-text").value = missingText(); $("#missing-dlg").showModal(); });
+  $("#copy-btn").addEventListener("click", async () => {
+    const t = $("#missing-text");
+    try { await navigator.clipboard.writeText(t.value); $("#copy-btn").textContent = "Copied"; }
+    catch (e) { t.select(); document.execCommand("copy"); $("#copy-btn").textContent = "Copied"; }
+    setTimeout(() => { $("#copy-btn").textContent = "Copy"; }, 1500);
+  });
+  $("#more-btn").addEventListener("click", () => $("#more-dlg").showModal());
+  document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => b.closest("dialog").close()));
+  $("#export-btn").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify({ page: DATA.id, saved: new Date().toISOString(), found: state }, null, 1)], { type: "application/json" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "lego-ticks-" + DATA.id + ".json"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+  $("#import-file").addEventListener("change", async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const j = JSON.parse(await f.text()); const src = j.found || j;
+      for (const no of Object.keys(state)) state[no] = (src[no] && typeof src[no] === "object") ? src[no] : {};
+      save(); renderList(); $("#more-dlg").close(); status("Ticks loaded from the file");
+    } catch (err) { status("That file could not be read"); }
+    e.target.value = "";
+  });
+  $("#reset-btn").addEventListener("click", () => {
+    if (!confirm("Clear every tick on this page?")) return;
+    state = Object.fromEntries(SETS.map(s => [s.no, {}])); save(); renderList(); $("#more-dlg").close();
+  });
+  renderTiles(); renderList();
+}
+init();
+</script>
+</body>
+</html>
